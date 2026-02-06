@@ -1,5 +1,5 @@
-# Python 3.13+
-# Tested with Python 3.13.12 and pip 25.3
+# Python 3.11+ (Docker uses 3.11, local dev tested with 3.13)
+# Tested with pip 25.3
 
 pip>=25.3
 fastapi==0.128.2

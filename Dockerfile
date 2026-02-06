@@ -1,7 +1,7 @@
 FROM python:3.11-slim
 
-LABEL maintainer="KnowledgeRAG Team"
-LABEL description="KnowledgeRAG - Retrieval Augmented Generation API"
+LABEL maintainer="recallApi Team"
+LABEL description="recallApi - A Retrieval Augmented Generation API"
 
 WORKDIR /app
 

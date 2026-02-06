@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: knowledgerag-deployment
+  name: recallApi-deployment
   labels:
-    app: knowledgerag
+    app: recallApi
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: knowledgerag
+      app: recallApi
   template:
     metadata:
       labels:
-        app: knowledgerag
+        app: recallApi
     spec:
       containers:
-      - name: knowledgerag
-        image: knowledgerag:latest
+      - name: recallApi
+        image: recallApi:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8000
@@ -24,6 +24,8 @@ spec:
         env:
         - name: USE_MOCK_LLM
           value: "0"
+        - name: OLLAMA_HOST
+          value: "http://ollama-service:11434"
         resources:
           requests:
             memory: "256Mi"

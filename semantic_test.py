@@ -1,4 +1,4 @@
-"""Semantic tests for KnowledgeRAG API."""
+"""Semantic tests for recallApi API."""
 import requests
 
 

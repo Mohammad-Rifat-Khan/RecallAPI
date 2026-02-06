@@ -7,12 +7,16 @@ import chromadb
 
 # Mock LLM mode for CI testing
 USE_MOCK_LLM = os.getenv("USE_MOCK_LLM", "0") == "1"
+# OLLAMA_HOST must be set via environment variable in Kubernetes
+# Default works for local development only
+OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434")
 
 if not USE_MOCK_LLM:
     import ollama
+    ollama_client = ollama.Client(host=OLLAMA_HOST)
 
 app = FastAPI(
-    title="KnowledgeRAG API",
+    title="recallApi API",
     description="Retrieval Augmented Generation API for Knowledge Management",
     version="1.0.0"
 )
@@ -31,7 +35,7 @@ class AddContent(BaseModel):
 def root():
     """Root endpoint with API information."""
     return {
-        "name": "KnowledgeRAG API",
+        "name": "recallApi",
         "version": "1.0.0",
         "status": "running",
         "mock_mode": USE_MOCK_LLM,
@@ -80,7 +84,7 @@ def query(q: str):
         return {"answer": context}
 
     # In production mode, use Ollama
-    answer = ollama.generate(
+    answer = ollama_client.generate(
         model="tinyllama",
         prompt=f"Context:\n{context}\n\nQuestion: {q}\n\nAnswer clearly and concisely:"
     )

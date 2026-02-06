@@ -1,216 +1,458 @@
-# 🧠 KnowledgeRAG
+# 🧠 recallApi
 
-**KnowledgeRAG** is a production-ready Retrieval Augmented Generation (RAG) API that combines vector search with Large Language Models to provide intelligent answers based on your knowledge base.
+<div align="center">
+
+**A Production-Ready Retrieval Augmented Generation (RAG) API**
+
+*Combine vector search with Large Language Models to provide intelligent answers from your knowledge base*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.128.2-009688.svg)](https://fastapi.tiangolo.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)](https://www.docker.com/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Ready-326CE5.svg)](https://kubernetes.io/)
+
+</div>
+
+---
+
+## 📋 Table of Contents
+
+- [Features](#-features)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [Quick Start](#-quick-start)
+- [Deployment](#-deployment)
+- [API Reference](#-api-reference)
+- [Testing](#-testing)
+- [Configuration](#-configuration)
+- [Project Structure](#-project-structure)
+- [License](#-license)
+
+---
 
 ## ✨ Features
 
-- 🚀 **Fast API** - Built with FastAPI for high performance
-- 🔍 **Vector Search** - Powered by ChromaDB for semantic search
-- 🤖 **LLM Integration** - Seamless integration with Ollama
-- 🧪 **Mock LLM** - Built-in mock LLM for testing without external dependencies
-- 🐳 **Containerized** - Docker support for easy deployment
-- ☸️ **Kubernetes Ready** - Production-ready Kubernetes manifests
-- 🔒 **Secure** - Environment-based configuration, no hardcoded secrets
-- 📊 **Observable** - Structured logging and health checks
+| Feature | Description |
+|---------|-------------|
+| 🚀 **High Performance** | Built with FastAPI and async support |
+| 🔍 **Semantic Search** | ChromaDB vector database for intelligent retrieval |
+| 🤖 **Local LLM** | Privacy-first with Ollama - no data leaves your infrastructure |
+| 🧪 **Mock Mode** | CI/CD friendly testing without GPU/LLM dependencies |
+| 🐳 **Containerized** | Production-ready Docker images |
+| ☸️ **Kubernetes Native** | Self-contained cluster deployment with Ollama |
+| 🔒 **Secure by Default** | Environment-based config, no hardcoded secrets |
 
-## 🏗️ Architecture
+---
+
+## 🛠 Tech Stack
+
+### Core Dependencies
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| **Python** | 3.11+ | Runtime |
+| **FastAPI** | 0.128.2 | Web framework |
+| **Uvicorn** | 0.40.0 | ASGI server |
+| **ChromaDB** | 1.4.1 | Vector database |
+| **Ollama** | 0.6.1 | Local LLM runtime |
+| **Pydantic** | 2.12.5 | Data validation |
+
+### Infrastructure
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| **Docker** | 28.4.0 | Containerization |
+| **Kubernetes** | 1.35.0 | Orchestration |
+| **Minikube** | 1.38.0 | Local K8s cluster |
+| **TinyLlama** | latest | LLM model (637MB) |
+
+---
+
+## 🏗 Architecture
+
+### System Overview
 
 ```
-User Request → FastAPI → ChromaDB (Vector Search) → LLM (Ollama/Mock) → Response
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           KUBERNETES CLUSTER                            │
+│                                                                         │
+│  ┌─────────────────────────────────┐    ┌─────────────────────────────┐ │
+│  │         recallApi Pod           │    │         Ollama Pod          │ │
+│  │  ┌─────────────┐ ┌───────────┐  │    │  ┌───────────────────────┐  │ │
+│  │  │   FastAPI   │ │ ChromaDB  │  │    │  │      TinyLlama        │  │ │
+│  │  │   Server    │ │(Vector DB)│  │    │  │       Model           │  │ │
+│  │  └──────┬──────┘ └───────────┘  │    │  └───────────────────────┘  │ │
+│  │         │                       │    │             ▲               │ │
+│  └─────────┼───────────────────────┘    └─────────────┼───────────────┘ │
+│            │                                          │                 │
+│            │         ollama-service:11434             │                 │
+│            └──────────────────────────────────────────┘                 │
+│                                                                         │
+│  ┌─────────────────────┐                                                │
+│  │ recallApi-service   │◀─── NodePort (auto-assigned)                   │
+│  └──────────┬──────────┘                                                │
+└─────────────┼───────────────────────────────────────────────────────────┘
+              │
+       ┌──────┴──────┐
+       │   Client    │
+       │  Requests   │
+       └─────────────┘
 ```
+
+### Data Flow
+
+```
+┌──────────┐     ┌─────────────────────────────────────────────────────────┐
+│          │     │                      RAG Pipeline                       │
+│  User    │     │  ┌─────────┐   ┌──────────┐   ┌─────────┐   ┌────────┐  │
+│  Query   │────▶│  │ Embed   │──▶│ Retrieve │──▶│ Context │──▶│  LLM   │  │
+│          │     │  │ Query   │   │ Top-K    │   │ Inject  │   │ Answer │  │
+│          │     │  └─────────┘   └──────────┘   └─────────┘   └────────┘  │
+└──────────┘     └─────────────────────────────────────────────────────────┘
+                                                                      │
+                              ┌───────────────────────────────────────┘
+                              ▼
+                       ┌─────────────┐
+                       │  Response   │
+                       │  {"answer": │
+                       │   "..."}    │
+                       └─────────────┘
+```
+
+---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-- Python 3.11+
-- Docker (optional)
-- Ollama (for production use)
-
-### Local Development
-
-1. **Clone the repository**
 ```bash
-git clone https://github.com/YOUR_USERNAME/knowledgerag.git
-cd knowledgerag
+# Required
+python3 --version    # Python 3.11+
+pip --version        # pip 25.3+
+
+# For Kubernetes deployment
+docker --version     # Docker 28.x+
+kubectl version      # Kubernetes 1.35+
+minikube version     # Minikube 1.38+
 ```
 
-2. **Create virtual environment**
+### Option 1: Local Development (Fastest)
+
 ```bash
+# 1. Clone and setup
+git clone https://github.com/YOUR_USERNAME/recallApi.git
+cd recallApi
+
+# 2. Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+source venv/bin/activate
 
-3. **Install dependencies**
-```bash
+# 3. Install dependencies
 pip install -r requirements.txt
+
+# 4. Seed the knowledge base (optional)
+python embed.py
+
+# 5. Start the server
+uvicorn app:app --reload --host 127.0.0.1 --port 8000
 ```
 
-4. **Configure environment**
+**Output:**
+```
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [12345]
+```
+
+### Option 2: Mock Mode (No Ollama)
+
+Perfect for testing and CI/CD pipelines:
+
 ```bash
-cp .env.example .env
-# Edit .env with your settings
+USE_MOCK_LLM=1 uvicorn app:app --reload
 ```
 
-5. **Run the application**
-```bash
-uvicorn app:app --reload
+**Output:**
+```
+INFO:     Mock LLM mode enabled - returning context directly
+INFO:     Uvicorn running on http://127.0.0.1:8000
 ```
 
-The API will be available at `http://localhost:8000`
+---
 
-### Using Mock LLM (No Ollama Required)
-
-For testing without Ollama:
-
-```bash
-export USE_MOCK_LLM=true
-uvicorn app:app --reload
-```
+## 🐳 Deployment
 
 ### Docker Deployment
 
 ```bash
-docker build -t knowledgerag .
-docker run -p 8000:8000 knowledgerag
-```
+# Build the image
+docker build -t recallApi:latest .
 
-### Kubernetes Deployment
-
-```bash
-kubectl apply -f deployment.yaml
-kubectl apply -f service.yaml
-```
-
-## 📚 API Documentation
-
-Once running, visit:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
-
-### Endpoints
-
-#### `POST /add` - Add content to knowledge base
-```bash
-curl -X POST "http://localhost:8000/add" \
-  -H "Content-Type: application/json" \
-  -d '{"content": "Kubernetes is a container orchestration platform"}'
-```
-
-#### `GET /list` - List all documents
-```bash
-curl "http://localhost:8000/list"
-```
-
-#### `POST /query` - Query the knowledge base
-```bash
-curl -X POST "http://localhost:8000/query?q=What is Kubernetes?"
-```
-
-#### `GET /health` - Health check
-```bash
-curl "http://localhost:8000/health"
-```
-
-## 🧪 Testing
-
-Run tests:
-```bash
-python semantic_test.py
-```
-
-Run with mock LLM for CI/CD:
-```bash
-USE_MOCK_LLM=true python semantic_test.py
-```
-
-## ⚙️ Configuration
-
-Configuration is managed through environment variables:
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `OLLAMA_HOST` | Ollama server URL | `http://localhost:11434` |
-| `OLLAMA_MODEL` | LLM model name | `tinyllama` |
-| `CHROMA_DB_PATH` | ChromaDB storage path | `./db` |
-| `COLLECTION_NAME` | ChromaDB collection name | `docs` |
-| `API_HOST` | API host binding | `0.0.0.0` |
-| `API_PORT` | API port | `8000` |
-| `USE_MOCK_LLM` | Use mock LLM for testing | `false` |
-| `ENVIRONMENT` | Environment (development/production) | `development` |
-
-## 🐳 Docker Support
-
-### Build
-```bash
-docker build -t knowledgerag:latest .
-```
-
-### Run with environment variables
-```bash
+# Run with host Ollama
 docker run -p 8000:8000 \
   -e OLLAMA_HOST=http://host.docker.internal:11434 \
-  -e USE_MOCK_LLM=false \
-  knowledgerag:latest
+  recallApi:latest
+
+# Run in mock mode (no Ollama needed)
+docker run -p 8000:8000 -e USE_MOCK_LLM=1 recallApi:latest
 ```
 
-## ☸️ Kubernetes Deployment
+### Kubernetes Deployment (Full Stack)
 
-The project includes production-ready Kubernetes manifests:
+Deploy both the app and Ollama inside the cluster - no external dependencies:
 
-- `deployment.yaml` - Application deployment
-- `service.yaml` - Service configuration
+```bash
+# 1. Start minikube
+minikube start
 
-**Note:** For production, update the Ollama host configuration in your environment or ConfigMap.
+# 2. Build image inside minikube
+eval $(minikube docker-env)
+docker build -t recallApi:latest .
 
-## 🏭 Production Deployment
+# 3. Deploy Ollama (LLM backend)
+kubectl apply -f ollama-deployment.yaml
+kubectl apply -f ollama-service.yaml
 
-### Recommended Setup
+# 4. Wait for Ollama image (~5.6GB download, 10-15 min)
+kubectl get pods -l app=ollama -w
 
-1. **Run Ollama as a separate service** in Kubernetes
-2. **Use ConfigMaps** for non-sensitive configuration
-3. **Use Secrets** for sensitive data
-4. **Enable health checks** and readiness probes
-5. **Set resource limits** appropriately
-6. **Use persistent volumes** for ChromaDB data
+# 5. Deploy the application
+kubectl apply -f deployment.yaml
+kubectl apply -f service.yaml
 
-### Security Checklist
+# 6. Get the service URL
+minikube service recallApi-service --url
+```
 
-- ✅ No hardcoded credentials
-- ✅ Environment-based configuration
-- ✅ CORS configured properly
-- ✅ Health check endpoints
-- ✅ Structured logging
-- ✅ Error handling
+**Expected Output:**
+```
+$ kubectl get pods
+NAME                                    READY   STATUS    RESTARTS   AGE
+recallApi-deployment-xxxxx-xxxxx     1/1     Running   0          2m
+ollama-xxxxx-xxxxx                      1/1     Running   0          5m
 
-## 🔄 CI/CD
+$ minikube service recallApi-service --url
+http://192.168.49.2:31641
+```
 
-GitHub Actions workflow is included for:
-- Automated testing
-- Docker image building
-- Linting and code quality checks
+### Verify Deployment
 
-## 📝 License
+```bash
+# Test root endpoint
+curl http://192.168.49.2:31641/
+# Output: {"name":"recallApi","version":"1.0.0","status":"running",...}
 
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📧 Support
-
-For issues and questions, please use the GitHub Issues page.
-
-## 🙏 Acknowledgments
-
-- Built with [FastAPI](https://fastapi.tiangolo.com/)
-- Vector search powered by [ChromaDB](https://www.trychroma.com/)
-- LLM integration via [Ollama](https://ollama.ai/)
+# Test query endpoint
+curl -X POST "http://192.168.49.2:31641/query?q=What%20is%20Kubernetes?"
+# Output: {"answer":"Kubernetes is a container orchestration platform..."}
+```
 
 ---
 
-Made with ❤️ for the AI community
+## 📚 API Reference
+
+### Interactive Documentation
+
+| URL | Description |
+|-----|-------------|
+| `http://localhost:8000/docs` | Swagger UI |
+| `http://localhost:8000/redoc` | ReDoc |
+
+### Endpoints
+
+#### `GET /` - Health Check
+```bash
+curl http://localhost:8000/
+```
+**Response:**
+```json
+{
+  "name": "recallApi",
+  "version": "1.0.0",
+  "status": "running",
+  "mock_mode": false,
+  "endpoints": {
+    "GET /": "API information",
+    "POST /add": "Add content to knowledge base",
+    "GET /list": "List all documents",
+    "POST /query": "Query the knowledge base"
+  }
+}
+```
+
+---
+
+#### `POST /add` - Add Document
+```bash
+curl -X POST "http://localhost:8000/add" \
+  -H "Content-Type: application/json" \
+  -d '{"content": "Docker is a containerization platform."}'
+```
+**Response:**
+```json
+{
+  "status": "success",
+  "message": "Content added to knowledge base",
+  "id": "doc_20260207_143052_123456"
+}
+```
+
+---
+
+#### `GET /list` - List Documents
+```bash
+curl http://localhost:8000/list
+```
+**Response:**
+```json
+{
+  "count": 2,
+  "ids": ["k8s", "doc_20260207_143052_123456"],
+  "documents": [
+    "Kubernetes is a container orchestration...",
+    "Docker is a containerization platform."
+  ]
+}
+```
+
+---
+
+#### `POST /query` - Query Knowledge Base
+```bash
+curl -X POST "http://localhost:8000/query?q=What%20is%20Kubernetes?"
+```
+**Response:**
+```json
+{
+  "answer": "Kubernetes is a container orchestration platform used to manage containers at scale. It automates deployment, scaling, and management of containerized applications."
+}
+```
+
+---
+
+## 🧪 Testing
+
+### Run Semantic Tests
+
+```bash
+# Start server first
+uvicorn app:app --host 127.0.0.1 --port 8000 &
+
+# Run tests
+python semantic_test.py
+```
+
+**Output:**
+```
+✅ Kubernetes query test passed
+All semantic tests passed!
+```
+
+### CI/CD Testing (Mock Mode)
+
+```bash
+# No Ollama required
+USE_MOCK_LLM=1 uvicorn app:app --host 127.0.0.1 --port 8000 &
+sleep 3
+python semantic_test.py
+```
+
+### GitHub Actions
+
+Tests run automatically on push via `.github/workflows/ci.yml`:
+- Uses mock LLM mode
+- No GPU required
+- Fast feedback loop
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `OLLAMA_HOST` | Ollama server URL | `http://localhost:11434` | No |
+| `USE_MOCK_LLM` | Enable mock mode (1/true) | `false` | No |
+| `CHROMA_DB_PATH` | Database path | `./db` | No |
+
+### Example `.env`
+
+```bash
+# Production
+OLLAMA_HOST=http://ollama-service:11434
+USE_MOCK_LLM=false
+
+# Development/Testing
+# USE_MOCK_LLM=1
+```
+
+---
+
+## 📁 Project Structure
+
+```
+recallApi/
+├── app.py                    # Main FastAPI application
+├── embed.py                  # Knowledge base seeding script
+├── semantic_test.py          # Semantic validation tests
+├── requirements.txt          # Python dependencies
+│
+├── Dockerfile                # Container image definition
+├── deployment.yaml           # K8s app deployment
+├── service.yaml              # K8s app service (NodePort)
+├── ollama-deployment.yaml    # K8s Ollama deployment
+├── ollama-service.yaml       # K8s Ollama service (ClusterIP)
+│
+├── k8s.txt                   # Sample knowledge base content
+├── db/                       # ChromaDB persistent storage
+│
+├── .env.example              # Environment template
+├── .gitignore                # Git ignore rules
+├── .github/
+│   └── workflows/
+│       └── ci.yml            # GitHub Actions CI pipeline
+│
+├── LICENSE                   # MIT License
+└── README.md                 # This file
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| `Connection refused` to Ollama | Check `OLLAMA_HOST` env var, verify Ollama is running |
+| Slow first query | Model loading into memory (~30s for TinyLlama) |
+| K8s pod stuck `ContainerCreating` | Ollama image is ~5.6GB, wait 10-15 minutes |
+| Mock mode not working | Use `USE_MOCK_LLM=1` (not `true`) |
+
+### Useful Commands
+
+```bash
+# Check K8s logs
+kubectl logs -l app=recallApi -f
+
+# Check Ollama pod
+kubectl exec -it $(kubectl get pod -l app=ollama -o jsonpath='{.items[0].metadata.name}') -- ollama list
+
+# Restart deployment
+kubectl rollout restart deployment/recallApi-deployment
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+<div align="center">
+
+**Built with ❤️ using FastAPI, ChromaDB, and Ollama**
+
+</div>

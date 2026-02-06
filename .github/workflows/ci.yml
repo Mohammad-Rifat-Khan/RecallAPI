@@ -76,13 +76,13 @@ jobs:
       with:
         context: .
         push: false
-        tags: knowledgerag:latest
+        tags: recallApi:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
     
     - name: Test Docker image
       run: |
-        docker run -d -p 8000:8000 -e USE_MOCK_LLM=1 --name test-container knowledgerag:latest
+        docker run -d -p 8000:8000 -e USE_MOCK_LLM=1 --name test-container recallApi:latest
         sleep 10
         curl -f http://localhost:8000/query?q=test || exit 1
         docker stop test-container
