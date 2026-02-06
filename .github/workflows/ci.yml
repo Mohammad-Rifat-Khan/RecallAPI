@@ -37,6 +37,9 @@ jobs:
       env:
         USE_MOCK_LLM: "1"
       run: |
+        # Seed the database with embeddings
+        python embed.py
+        
         # Start the application in the background
         uvicorn app:app --host 127.0.0.1 --port 8000 &
         APP_PID=$!
@@ -76,15 +79,15 @@ jobs:
       with:
         context: .
         push: false
-        tags: recallApi:latest
+        tags: recallapi:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
     
     - name: Test Docker image
       run: |
-        docker run -d -p 8000:8000 -e USE_MOCK_LLM=1 --name test-container recallApi:latest
+        docker run -d -p 8000:8000 -e USE_MOCK_LLM=1 --name test-container recallapi:latest
         sleep 10
-        curl -f http://localhost:8000/query?q=test || exit 1
+        curl -f -X POST http://localhost:8000/query?q=test || exit 1
         docker stop test-container
         docker rm test-container
 
