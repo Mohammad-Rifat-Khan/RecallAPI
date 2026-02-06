@@ -1,0 +1,52 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.Python
+dist/
+build/
+env/
+ENV/
+
+# Environment
+.env
+.env.local
+
+# Chroma database
+db/
+*.sqlite3
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Docker
+*.tar
+
+# Temporary files
+*.tmp
+temp/
+
+# Kubernetes secrets (if any generated locally)
+*-secret.yaml
+Thumbs.db

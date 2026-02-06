@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: knowledgerag-deployment
+  labels:
+    app: knowledgerag
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: knowledgerag
+  template:
+    metadata:
+      labels:
+        app: knowledgerag
+    spec:
+      containers:
+      - name: knowledgerag
+        image: knowledgerag:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: USE_MOCK_LLM
+          value: "0"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
