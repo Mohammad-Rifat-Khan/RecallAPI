@@ -77,7 +77,12 @@ def list_all():
 def query(q: str):
     """Query the knowledge base using RAG."""
     results = collection.query(query_texts=[q], n_results=1)
-    context = results["documents"][0][0] if results["documents"] else ""
+    
+    # Handle empty database or no results
+    if not results["documents"] or not results["documents"][0]:
+        return {"answer": "No relevant information found in the knowledge base."}
+    
+    context = results["documents"][0][0]
 
     if USE_MOCK_LLM:
         # In mock mode, return the retrieved context directly
