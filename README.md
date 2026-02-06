@@ -1,8 +1,8 @@
-# 🧠 recallApi
+# 🧠 RecallApi
 
 <div align="center">
 
-**A Production-Ready Retrieval Augmented Generation (RAG) API**
+**A Retrieval Augmented Generation (RAG) API**
 
 *Combine vector search with Large Language Models to provide intelligent answers from your knowledge base*
 
@@ -16,8 +16,58 @@
 
 ---
 
+## � Project Overview
+
+### What is RecallAPI?
+
+**RecallAPI** is a complete **Retrieval Augmented Generation (RAG)** system that demonstrates how applications can interact with knowledge bases using AI. Instead of relying solely on Large Language Models (which can hallucinate or lack domain-specific knowledge), this project demonstrates how to ground AI responses in actual data through intelligent semantic search and context injection.
+
+### What Was Built
+
+This project implements a full-stack AI-powered API with:
+
+- **RESTful API Backend**: Built with FastAPI, featuring health checks, dynamic content management, and intelligent query endpoints
+- **Vector Database Integration**: ChromaDB for persistent storage and semantic similarity search using embeddings
+- **Local LLM Integration**: Ollama server running TinyLlama for privacy-preserving AI inference
+- **Multi-Environment Deployment**: Local development, Docker containerization, and complete Kubernetes orchestration
+- **CI/CD Pipeline**: Automated testing, Docker image building, and security scanning via GitHub Actions
+- **Mock Testing Layer**: GPU-free testing mode for rapid development and CI/CD workflows
+
+### How It Works
+
+The RAG pipeline follows this flow:
+
+1. **Knowledge Storage**: Documents are embedded into vector representations and stored in ChromaDB
+2. **User Query**: Natural language questions come in via REST API
+3. **Semantic Retrieval**: ChromaDB finds the most relevant documents using vector similarity
+4. **Context Injection**: Retrieved content is injected into the LLM prompt as context
+5. **AI Generation**: Ollama's TinyLlama generates accurate, grounded answers based on actual data
+6. **Response**: Structured JSON response delivered to the client
+
+**Key Technical Implementation:**
+- FastAPI handles REST API request processing
+- ChromaDB manages vector embeddings and similarity search
+- Ollama serves as the local LLM runtime (no external API calls)
+- Kubernetes orchestrates separate pods for the API and LLM backend
+- Service discovery enables pod-to-pod communication within the cluster
+
+### Use Cases & Skills Demonstrated
+
+**When This Architecture is Valuable:**
+
+| Scenario | Application |
+|----------|-------------|
+| **Enterprise Knowledge Management** | Internal documentation search with AI-powered answers |
+| **Customer Support** | Automated responses grounded in product manuals and FAQs |
+| **Research & Education** | Query scientific papers or educational content with citations |
+| **Privacy-Sensitive Applications** | Healthcare, legal, or financial systems requiring on-premise AI |
+| **Edge AI Deployments** | Air-gapped environments where cloud APIs aren't available |
+
+---
+
 ## 📋 Table of Contents
 
+- [Project Overview](#-project-overview)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
 - [Architecture](#-architecture)
@@ -35,7 +85,7 @@
 
 | Feature | Description |
 |---------|-------------|
-| 🚀 **High Performance** | Built with FastAPI and async support |
+| 🚀 **High Performance** | Built with FastAPI for fast API processing |
 | 🔍 **Semantic Search** | ChromaDB vector database for intelligent retrieval |
 | 🤖 **Local LLM** | Privacy-first with Ollama - no data leaves your infrastructure |
 | 🧪 **Mock Mode** | CI/CD friendly testing without GPU/LLM dependencies |
@@ -141,8 +191,8 @@ minikube version     # Minikube 1.38+
 
 ```bash
 # 1. Clone and setup
-git clone https://github.com/YOUR_USERNAME/recallApi.git
-cd recallApi
+git clone https://github.com/Mohammad-Rifat-Khan/RecallAPI.git
+cd RecallAPI
 
 # 2. Create virtual environment
 python -m venv venv
@@ -374,7 +424,6 @@ Tests run automatically on push via `.github/workflows/ci.yml`:
 |----------|-------------|---------|----------|
 | `OLLAMA_HOST` | Ollama server URL | `http://localhost:11434` | No |
 | `USE_MOCK_LLM` | Enable mock mode (1/true) | `false` | No |
-| `CHROMA_DB_PATH` | Database path | `./db` | No |
 
 ### Example `.env`
 
@@ -447,7 +496,7 @@ kubectl rollout restart deployment/recallApi-deployment
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License - Free to use and modify.
 
 ---
 
